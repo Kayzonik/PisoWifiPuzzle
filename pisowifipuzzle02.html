@@ -23,7 +23,7 @@
   <h1>Solve the Puzzle to Win a Piso WiFi Voucher</h1>
   <div id="puzzle-board"></div>
   <div id="message"></div>
-  <div id="voucher-box"></div><a href="#" onclick="toggleAdmin()">Admin Panel</a>
+  <div id="voucher-box"></div><a href="#" onclick="promptAdminAccess()">Admin Panel</a>
 
   <div id="admin-panel">
     <h3>Enter Voucher Codes (1 per line)</h3>
@@ -33,8 +33,12 @@
     const board = document.getElementById("puzzle-board");
     const message = document.getElementById("message");
     const voucherBox = document.getElementById("voucher-box");
+    const adminPanel = document.getElementById("admin-panel");
     const size = 4;
     let tiles = [];
+
+    // Replace this password with your own
+    const adminPassword = "1234";
 
     function initPuzzle() {
       tiles = [...Array(size * size).keys()].sort(() => Math.random() - 0.5);
@@ -87,11 +91,13 @@
       }
     }
 
-    function toggleAdmin() {
-      document.getElementById("admin-panel").style.display =
-        document.getElementById("admin-panel").style.display === "none"
-          ? "block"
-          : "none";
+    function promptAdminAccess() {
+      const pwd = prompt("Enter admin password:");
+      if (pwd === adminPassword) {
+        adminPanel.style.display = "block";
+      } else {
+        alert("Incorrect password.");
+      }
     }
 
     function saveVouchers() {
