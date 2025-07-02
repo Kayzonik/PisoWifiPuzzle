@@ -17,6 +17,8 @@
     #admin-panel { display: none; margin-top: 30px; }
     textarea { width: 300px; height: 100px; }
     button { margin-top: 10px; }
+    #voucher-list { margin-top: 10px; }
+    .used { text-decoration: line-through; color: gray; }
   </style>
 </head>
 <body>
@@ -29,15 +31,18 @@
     <h3>Enter Voucher Codes (1 per line)</h3>
     <textarea id="voucher-input"></textarea><br>
     <button onclick="saveVouchers()">Save Vouchers</button>
+    <h4>Available Vouchers:</h4>
+    <ul id="voucher-list"></ul>
   </div>  <script>
+    const size = 4;
+    let tiles = [];
     const board = document.getElementById("puzzle-board");
     const message = document.getElementById("message");
     const voucherBox = document.getElementById("voucher-box");
+    const voucherList = document.getElementById("voucher-list");
     const adminPanel = document.getElementById("admin-panel");
-    const size = 4;
-    let tiles = [];
 
-    // Replace this password with your own
+    // Change this password to whatever you want
     const adminPassword = "1234";
 
     function initPuzzle() {
@@ -81,11 +86,12 @@
     }
 
     function giveVoucher() {
-      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
+      let vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
       if (vouchers.length > 0) {
         const code = vouchers.shift();
         localStorage.setItem("vouchers", JSON.stringify(vouchers));
         voucherBox.innerHTML = `<strong>${code}</strong>`;
+        updateVoucherList();
       } else {
         voucherBox.textContent = "No vouchers available. Try again later.";
       }
@@ -95,6 +101,8 @@
       const pwd = prompt("Enter admin password:");
       if (pwd === adminPassword) {
         adminPanel.style.display = "block";
+        loadVoucherInput();
+        updateVoucherList();
       } else {
         alert("Incorrect password.");
       }
@@ -106,7 +114,23 @@
         .map(x => x.trim())
         .filter(x => x);
       localStorage.setItem("vouchers", JSON.stringify(lines));
+      updateVoucherList();
       alert("Saved " + lines.length + " vouchers!");
+    }
+
+    function loadVoucherInput() {
+      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
+      document.getElementById("voucher-input").value = vouchers.join("\n");
+    }
+
+    function updateVoucherList() {
+      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
+      voucherList.innerHTML = "";
+      vouchers.forEach(v => {
+        const li = document.createElement("li");
+        li.textContent = v;
+        voucherList.appendChild(li);
+      });
     }
 
     initPuzzle();
