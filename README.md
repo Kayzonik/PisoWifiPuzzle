@@ -1,1 +1,109 @@
 # PisoWifiPuzzle
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piso WiFi Puzzle Challenge</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
+    h1 { margin-top: 20px; }
+    #puzzle-board { display: grid; grid-template-columns: repeat(4, 80px); gap: 5px; justify-content: center; margin: 20px auto; }
+    .tile {
+      width: 80px; height: 80px; background: #ccc; display: flex;
+      justify-content: center; align-items: center; font-size: 24px;
+      cursor: pointer; user-select: none;
+    }
+    .empty { background: white; cursor: default; }
+    #message, #voucher-box { margin-top: 20px; }
+    #admin-panel { display: none; margin-top: 30px; }
+    textarea { width: 300px; height: 100px; }
+    button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Solve the Puzzle to Win a Piso WiFi Voucher</h1>
+  <div id="puzzle-board"></div>
+  <div id="message"></div>
+  <div id="voucher-box"></div><a href="#" onclick="toggleAdmin()">Admin Panel</a>
+
+  <div id="admin-panel">
+    <h3>Enter Voucher Codes (1 per line)</h3>
+    <textarea id="voucher-input"></textarea><br>
+    <button onclick="saveVouchers()">Save Vouchers</button>
+  </div>  <script>
+    const board = document.getElementById("puzzle-board");
+    const message = document.getElementById("message");
+    const voucherBox = document.getElementById("voucher-box");
+    const size = 4;
+    let tiles = [];
+
+    function initPuzzle() {
+      tiles = [...Array(size * size).keys()].sort(() => Math.random() - 0.5);
+      render();
+    }
+
+    function render() {
+      board.innerHTML = "";
+      tiles.forEach((val, i) => {
+        const div = document.createElement("div");
+        div.className = "tile";
+        if (val === 0) {
+          div.classList.add("empty");
+        } else {
+          div.textContent = val;
+          div.onclick = () => move(i);
+        }
+        board.appendChild(div);
+      });
+    }
+
+    function move(i) {
+      const emptyIndex = tiles.indexOf(0);
+      const row = Math.floor(i / size);
+      const col = i % size;
+      const erow = Math.floor(emptyIndex / size);
+      const ecol = emptyIndex % size;
+      if (Math.abs(row - erow) + Math.abs(col - ecol) === 1) {
+        [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
+        render();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      if (tiles.slice(0, -1).every((val, idx) => val === idx + 1)) {
+        message.textContent = "🎉 You solved it! Here's your voucher:";
+        giveVoucher();
+      }
+    }
+
+    function giveVoucher() {
+      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
+      if (vouchers.length > 0) {
+        const code = vouchers.shift();
+        localStorage.setItem("vouchers", JSON.stringify(vouchers));
+        voucherBox.innerHTML = `<strong>${code}</strong>`;
+      } else {
+        voucherBox.textContent = "No vouchers available. Try again later.";
+      }
+    }
+
+    function toggleAdmin() {
+      document.getElementById("admin-panel").style.display =
+        document.getElementById("admin-panel").style.display === "none"
+          ? "block"
+          : "none";
+    }
+
+    function saveVouchers() {
+      const lines = document.getElementById("voucher-input").value
+        .split("\n")
+        .map(x => x.trim())
+        .filter(x => x);
+      localStorage.setItem("vouchers", JSON.stringify(lines));
+      alert("Saved " + lines.length + " vouchers!");
+    }
+
+    initPuzzle();
+  </script></body>
+</html>
