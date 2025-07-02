@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,32 +18,30 @@
     #admin-panel { display: none; margin-top: 30px; }
     textarea { width: 300px; height: 100px; }
     button { margin-top: 10px; }
-    #voucher-list { margin-top: 10px; }
-    .used { text-decoration: line-through; color: gray; }
   </style>
 </head>
 <body>
   <h1>Solve the Puzzle to Win a Piso WiFi Voucher</h1>
   <div id="puzzle-board"></div>
   <div id="message"></div>
-  <div id="voucher-box"></div><a href="#" onclick="promptAdminAccess()">Admin Panel</a>
+  <div id="voucher-box"></div>
 
+  <a href="#" onclick="promptAdminAccess()">Admin Panel</a>
   <div id="admin-panel">
     <h3>Enter Voucher Codes (1 per line)</h3>
     <textarea id="voucher-input"></textarea><br>
     <button onclick="saveVouchers()">Save Vouchers</button>
-    <h4>Available Vouchers:</h4>
-    <ul id="voucher-list"></ul>
-  </div>  <script>
-    const size = 4;
-    let tiles = [];
+  </div>
+
+  <script>
     const board = document.getElementById("puzzle-board");
     const message = document.getElementById("message");
     const voucherBox = document.getElementById("voucher-box");
-    const voucherList = document.getElementById("voucher-list");
     const adminPanel = document.getElementById("admin-panel");
+    const size = 4;
+    let tiles = [];
 
-    // Change this password to whatever you want
+    // Replace this password with your own
     const adminPassword = "1234";
 
     function initPuzzle() {
@@ -86,12 +85,11 @@
     }
 
     function giveVoucher() {
-      let vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
+      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
       if (vouchers.length > 0) {
         const code = vouchers.shift();
         localStorage.setItem("vouchers", JSON.stringify(vouchers));
         voucherBox.innerHTML = `<strong>${code}</strong>`;
-        updateVoucherList();
       } else {
         voucherBox.textContent = "No vouchers available. Try again later.";
       }
@@ -101,8 +99,6 @@
       const pwd = prompt("Enter admin password:");
       if (pwd === adminPassword) {
         adminPanel.style.display = "block";
-        loadVoucherInput();
-        updateVoucherList();
       } else {
         alert("Incorrect password.");
       }
@@ -114,25 +110,10 @@
         .map(x => x.trim())
         .filter(x => x);
       localStorage.setItem("vouchers", JSON.stringify(lines));
-      updateVoucherList();
       alert("Saved " + lines.length + " vouchers!");
     }
 
-    function loadVoucherInput() {
-      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
-      document.getElementById("voucher-input").value = vouchers.join("\n");
-    }
-
-    function updateVoucherList() {
-      const vouchers = JSON.parse(localStorage.getItem("vouchers") || "[]");
-      voucherList.innerHTML = "";
-      vouchers.forEach(v => {
-        const li = document.createElement("li");
-        li.textContent = v;
-        voucherList.appendChild(li);
-      });
-    }
-
     initPuzzle();
-  </script></body>
+  </script>
+</body>
 </html>
